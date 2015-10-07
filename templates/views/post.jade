@@ -8,7 +8,7 @@ block content
 			else
 				h1.post-title= data.post.title
 				h4(style="margin-bottom:0px;") #{data.post._.publishedDate.format('MMMM Do, YYYY')} by 
-					a(href="http://localhost:3000/contributor/#{data.post.author.name.first}%20#{data.post.author.name.last}",class="contributor-link") #{data.post.author.name.first} #{data.post.author.name.last}<img src="#{data.post.author.pic}" alt="Contributor Picture" class="contributor-picture-sm"/>
+					a(href="http://dailyinteresting.com/contributor/#{data.post.author.name.first}%20#{data.post.author.name.last}",class="contributor-link") #{data.post.author.name.first} #{data.post.author.name.last}<img src="#{data.post.author.pic}" alt="Contributor Picture" class="contributor-picture-sm"/>
 				if data.post.topics && data.post.topics.length
 					each cat, cat_i in data.post.topics
 							a(href='/a/' + cat.key, class="category-link")= '#'+cat.name
@@ -33,13 +33,13 @@ block content
 				h2 WHAT'S HOT
 				hr
 				each hotpost in data.hot
-					a(href="http://localhost:3000/a/post/#{hotpost.slug}")
+					a(href="http://dailyinteresting.com/a/post/#{hotpost.slug}")
 						div.hotlink
 							div.hotlink-img
 								if hotpost.image.url
 									img(src='#{hotpost.image.url}', width='150', height='140')
 								else
-									img(src='http://localhost:3000/images/textarticle.png', width='150', height='140')
+									img(src='http://dailyinteresting.com/images/textarticle.png', width='150', height='140')
 							div.hotlink-text
 								| #{hotpost.title} 
 								p.hotlink-views-text
@@ -49,19 +49,19 @@ block content
 				hr
 				each topic in data.topics
 					if topic.importance == 'low'
-						a.topiclinkLow(href="http://localhost:3000/a/#{topic.key}")
+						a.topiclinkLow(href="http://dailyinteresting.com/a/#{topic.key}")
 							| #{topic.name} 
 							each icon in topic.icons.split(',')
 								if icon != 'none'
 									<i class="mdi mdi-#{icon}"></i>
 					if topic.importance == 'medium'
-						a.topiclinkMedium(href="http://localhost:3000/a/#{topic.key}")
+						a.topiclinkMedium(href="http://dailyinteresting.com/a/#{topic.key}")
 							| #{topic.name} 
 							each icon in topic.icons.split(',')
 								if icon != 'none'
 									<i class="mdi mdi-#{icon}"></i>
 					if topic.importance == 'high'
-						a.topiclinkHigh(href="http://localhost:3000/a/#{topic.key}")
+						a.topiclinkHigh(href="http://dailyinteresting.com/a/#{topic.key}")
 							| #{topic.name} 
 							each icon in topic.icons.split(',')
 								- icon = icon.trim();
@@ -73,7 +73,7 @@ block content
 				each link in data.featurelink
 					- myhref = link.content.brief.substr(3,link.content.brief.length-7);
 					- myhref = myhref.replace(/\//g,'\\');
-					a(href="http://localhost:3000/redirect/#{myhref}", target="_blank")
+					a(href="http://dailyinteresting.com/redirect/#{myhref}", target="_blank")
 						div.hotlink
 							div.hotlink-img
 								img(src='#{link.image.url}', width='150', height='140')
@@ -84,11 +84,11 @@ block content
 			
 				ul(class="footer-links", style="position: fixed; bottom: 0px; height:30px; padding-left:0px;margin-left:-100px;")
 					li
-						a(href="http://localhost:3000/a/post/about") About
+						a(href="http://dailyinteresting.com/a/post/about") About
 					li
-						a(href="http://localhost:3000/a/post/privacy") Privacy
+						a(href="http://dailyinteresting.com/a/post/privacy") Privacy
 					li
-						a(href="http://localhost:3000/a/post/terms") Terms
+						a(href="http://dailyinteresting.com/a/post/terms") Terms
 					li
-						a(href="http://localhost:3000/a/post/contact") Contact
+						a(href="http://dailyinteresting.com/a/post/contact") Contact
 					li(style="font-size:smaller;margin-top:3px;"): | (c) 2015 Patio Media 

@@ -15,7 +15,7 @@ block content
 						| Our Contributors:
 					each user in users
 						h2
-							a(href="http://localhost:3000/contributor/#{user.name.full}", style="color:#777;")
+							a(href="http://dailyinteresting.com/contributor/#{user.name.full}", style="color:#777;")
 								| #{user.name.full}<img src="#{user.pic}" alt="Contributor Picture" class="contributor-picture-sm", style="margin-left:12px;"/>
 				else
 					h1
@@ -29,7 +29,7 @@ block content
 					h2
 						| Articles:					
 					each post in locals.data.posts
-						a(href="http://localhost:3000/a/post/#{post.slug}")
+						a(href="http://dailyinteresting.com/a/post/#{post.slug}")
 							h3 #{post.title}
 						p(style="color:#777;") #{post._.publishedDate.format('MMMM Do, YYYY')}
 		div.col-xs-6.col-md-4.right-bar 		

@@ -9,7 +9,10 @@ html
 		meta(name="viewport", content="width=device-width, initial-scale=1.0")
 		meta(http-equiv="X-UA-Compatible" content="IE=edge")
 		meta(property="og:type", content="article")
-		meta(property="og:url", content="http://dailyinteresting.com")
+		if section == 'post'
+			meta(property="og:url", id="metaogurl", content="http://dailyinteresting.com/a/post/#{data.post.slug}")
+		else
+			meta(property="og:url", id="metaogurl", content="http://dailyinteresting.com")
 		meta(property="og:title", id="metaogtitle", content="Daily Interesting")
 		meta(property="og:description", id="metaogdescription", content="News, Entertainment and Articles: Fresh every day")
 		meta(property="og:image", id="metaogimage", content="http://dailyinteresting.com/logo.png")
@@ -54,7 +57,7 @@ html
 			#topbar
 				
 				span
-					a(href='http://localhost:3000')
+					a(href='http://dailyinteresting.com')
 						img(src='/images/logo.png')
 					h3(class="topbar-strapline")
 						- var x = Math.floor(Math.random() * 2) + 1  
@@ -123,7 +126,8 @@ html
 			- brief = brief.replace(/\n/g, '').replace(/\r/g, '');
 			- brief = brief.replace(/<img .*src="(.*?)".*(.*?)\/>/g, '').trim();
 			script.
-				$('#metaogtitle').attr('content','#{data.post.title}');
+				$('#metaogurl').attr('content', 'http://'+document.location.hostname+document.location.pathname);
+				$('#metaogtitle').attr('content',"#{data.post.title}");
 				$('#metaogdescription').attr('content', '#{brief}');
 				$('#metaogimage').attr('content',"#{data.post.image.url}");
 

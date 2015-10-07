@@ -54,7 +54,7 @@ html
 			#topbar
 				
 				span
-					a(href='http://localhost:3000')
+					a(href='http://dailyinteresting.com')
 						img(src='/images/logo.png')
 					h3(class="topbar-strapline")
 						- var x = Math.floor(Math.random() * 2) + 1  
@@ -115,13 +115,13 @@ html
 		//	
 		//	ul(class="footer-links", style="position: fixed; bottom: 0px; height:30px;")
 		//		li
-		//			a(href="http://localhost:3000/a/post/about") About
+		//			a(href="http://dailyinteresting.com/a/post/about") About
 		//		li
-		//			a(href="http://localhost:3000/a/post/privacy") Privacy
+		//			a(href="http://dailyinteresting.com/a/post/privacy") Privacy
 		//		li
-		//			a(href="http://localhost:3000/a/post/terms") Terms
+		//			a(href="http://dailyinteresting.com/a/post/terms") Terms
 		//		li
-		//			a(href="http://localhost:3000/a/post/contact") Contact
+		//			a(href="http://dailyinteresting.com/a/post/contact") Contact
 		//		li(style="font-size:smaller;margin-top:3px;"): | (c) 2015 Patio Media 
 			
 		script(src='/js/jquery/jquery-1.11.2.min.js')
