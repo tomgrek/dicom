@@ -1,0 +1,161 @@
+include ../mixins/flash-messages
+
+doctype html
+html
+
+	//- HTML HEADER
+	head
+		meta(charset="utf-8")
+		meta(name="viewport", content="width=device-width, initial-scale=1.0")
+		meta(http-equiv="X-UA-Compatible" content="IE=edge")
+		meta(property="og:type", content="article")
+		meta(property="og:url", content="http://dailyinteresting.com")
+		meta(property="og:title", id="metaogtitle", content="Daily Interesting")
+		meta(property="og:description", id="metaogdescription", content="News, Entertainment and Articles: Fresh every day")
+		meta(property="og:image", id="metaogimage", content="http://dailyinteresting.com/logo.png")
+		title
+			if (data.post)
+				| #{data.post.title} - Daily Interesting
+			else
+				|dailyinteresting.com - Interesting Every Day
+		link(rel="shortcut icon", href="/favicon.ico", type="image/x-icon")
+
+		//- Customise the stylesheet for your site by editing /public/styles/site.less
+		//- All .less files will be automatically compiled and minified in production.
+		link(href="/styles/site.min.css", rel="stylesheet")
+		//-link(href="/fonts/bree.woff2", type='application/font-woff2', rel="stylesheet")
+		link(href='https://fonts.googleapis.com/css?family=Bree+Serif',rel='stylesheet',type='text/css')
+		link(href='http://cdn.materialdesignicons.com/1.2.65/css/materialdesignicons.min.css', rel='stylesheet',type='text/css')
+		//- This file provides the default styling for the KeystoneJS Content Editor
+		if user && user.canAccessKeystone
+			link(href="/keystone/styles/content/editor.min.css", rel="stylesheet")
+
+		//- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries
+		//- Safely remove this block if you are not targeting IE8
+		//-[if lt IE 9]
+			script(src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js")
+			script(src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js")
+		//-[endif]
+
+		//- Include template-specific stylesheets by extending the css block
+		block css
+
+		//- Add any other template-specific HEAD tags by extending the head block
+		block head
+
+	//- HTML BODY
+	body
+
+		//- HEADER
+		#header: .container
+
+			//-changing the navLinks Array in ./routes/middleware.js
+
+			#topbar
+				
+				span
+					a(href='http://localhost:3000')
+						img(src='/images/logo.png')
+					h3(class="topbar-strapline")
+						- var x = Math.floor(Math.random() * 2) + 1  
+						- if (x==1)
+							p | The right way to waste time.
+						- if (x==2)
+							p | It's very interesting.
+					div.fb-like.topbar-social(data-href="http://dailyinteresting.com",data-layout="button_count",data-action="like",data-show-faces="true",data-share="true")
+					div(style="float:right;clear:right;")
+						a(href="https://twitter.com/intrestdaily",class="twitter-follow-button",data-show-count="true",data-show-screen-name="false",style="float:right;clear:right!important;") Follow
+
+			div(role="navigation").navbar.navbar-default
+				.container-fluid
+					.navbar-header
+						button.navbar-toggle(type='button', data-toggle='collapse', data-target='.navbar-collapse')
+							span.sr-only Toggle navigation
+							span.icon-bar
+							span.icon-bar
+							span.icon-bar
+
+					.collapse.navbar-collapse
+						ul.nav.navbar-nav.navbar-left
+							each link in navLinks
+								li(class=(section == link.key ? 'active' : null)): a(href=link.href)= link.label
+							if user
+								if user.canAccessKeystone
+									li: a(href='/keystone') Keystone
+								li: a(href='/keystone/signout') Sign Out
+							else
+								li: a(href='/keystone/signin') Sign In
+						ul.nav.navbar-nav.navbar-right
+							li(class="searchbar")
+								form(class="navbar-form navbar-left", role="search", action="/a/", method="POST")
+									
+									input(name="query",type="text",class="form-control",placeholder="SEARCH")
+									button(type="submit",class="btn btn-default")
+										span(class="glyphicon glyphicon-search")
+
+
+		//- BODY
+		#body
+
+			//- NOTE:
+			//- There is no .container wrapping class around body blocks to allow more flexibility in design.
+			//- Remember to include it in your templates when you override the intro and content blocks!
+
+			//- The Intro block appears above flash messages (used for temporary information display)
+			block intro
+
+			//- Flash messages allow you to display once-off status messages to users, e.g. form
+			//- validation errors, success messages, etc.
+			+flash-messages(messages)
+
+			//- The content block should contain the body of your template's content
+			block content	
+		//- FOOTER
+		//.container: #footer
+		//	
+		//	ul(class="footer-links", style="position: fixed; bottom: 0px; height:30px;")
+		//		li
+		//			a(href="http://localhost:3000/a/post/about") About
+		//		li
+		//			a(href="http://localhost:3000/a/post/privacy") Privacy
+		//		li
+		//			a(href="http://localhost:3000/a/post/terms") Terms
+		//		li
+		//			a(href="http://localhost:3000/a/post/contact") Contact
+		//		li(style="font-size:smaller;margin-top:3px;"): | (c) 2015 Patio Media 
+			
+		script(src='/js/jquery/jquery-1.11.2.min.js')
+
+		if data.post
+			- brief = data.post.content.brief;
+			- brief = brief.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g,'"');
+			- brief = brief.replace(/<p>/g, '').replace(/<\/p>/g, '');
+			- brief = brief.replace(/<strong>/g, '').replace(/<\/strong>/g, '');
+			- brief = brief.replace(/<em>/g, '').replace(/<\/em>/g, '');
+			- brief = brief.replace(/\n/g, '').replace(/\r/g, '');
+			- brief = brief.replace(/<img .*src="(.*?)".*(.*?)\/>/g, '').trim();
+			script.
+				$('#metaogtitle').attr('content','#{data.post.title}');
+				$('#metaogdescription').attr('content', '#{brief}');
+				$('#metaogimage').attr('content',"#{data.post.image.url}");
+
+		//- Customise which Bootstrap javascript files are served by including
+		//- them specifically here, instead of bootstrap-3.3.4.min.js
+		script(src='/js/bootstrap/bootstrap-3.3.4.min.js')
+
+		//- The KeystoneJS Content Editor provides support for ks-editable data attributes,
+		//- which generate links to edit content for users who can access Keystone
+		if user && user.canAccessKeystone
+			script(src='/keystone/js/content/editor.js')
+
+		//- Add scripts that are globally required by your site here.
+		div#fb-root
+		script(src='/js/difb.js')
+		script(src='/js/ditwit.js')
+		script(src='/js/iscroll.js')
+		if section == 'home'
+			script.
+				$('#mainsection').infinitescroll({navSelector:"div.paginator",nextSelector:"div.paginator a:last",itemSelector:"div.blog"});
+
+		//- Include template-specific javascript files by extending the js block
+		block js

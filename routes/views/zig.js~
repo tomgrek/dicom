@@ -1,0 +1,80 @@
+var keystone = require('keystone');
+
+exports = module.exports = function(req, res) {
+	
+	var view = new keystone.View(req, res);
+	var locals = res.locals;
+
+	//post categories - or rather types. grab from the admin console.
+	var hot = '5603ccd1c76d43f64cdfb8e2';
+	var headline = '560525db32be16ec52c7fe09';
+	var top3 = '560536921f4ef90953b4a1e7';
+	var textarticle = '56054db2429768e556442ce6';
+	var featurelink = '560f549c821e1b6d2b1589a0';
+	var unlisted = '560fea99754d026b11321dc2';
+
+	locals.section = 'zig';
+	locals.headline = 'Site headline';
+	locals.data = {
+		posts: [],
+		topics: [],
+		categories: [],
+		top3: [],
+		textarticles: [],
+		hot: []
+	};
+	
+	view.on('get', function(next) { //replaced .on('init') with this, which is called every time instead of only the first
+		//probably even better, set up the topics and categories in init, then only overwrite them here if they're empty.
+		keystone.list('PostTopic').model.find().sort('name').exec(function(err, results) { 
+			locals.data.topics = results; });
+		keystone.list('Post').model.find()
+			.where('state','published')
+			.where('categories').nin([top3, headline, textarticle, unlisted])
+			.sort('-views').limit('5')
+			.exec(function(err, results) {
+			locals.data.hot = results; });
+		keystone.list('Post').model.find().where('categories').in([headline])
+			.where('state','published')
+			.sort('-publishedDate').exec(function(err, results) {
+			locals.headline = results[0].title; });
+		keystone.list('Post').model.find()
+			.where('state','published')
+			.where('categories').in([top3]).sort('-publishedDate').exec(function(err, results) {
+			locals.data.top3 = results; });
+		keystone.list('Post').model.find()
+			.where('state','published')
+			.where('categories').in([textarticle])
+			.sort('-publishedDate').exec(function(err, results) {		
+			locals.data.textarticles = results; });
+		keystone.list('Post').model.find().where('categories').in([featurelink])
+			.where('state','published')
+			.sort('-views').limit('4')
+			.exec(function(err, results) {
+			locals.data.featurelink = results; });
+		var q = keystone.list('Post').paginate({
+				page: req.query.page || 1,
+				perPage: 5,
+				maxPages: 20
+			})
+			.where('state', 'published')
+			.where('categories').nin([headline,top3,textarticle,hot])
+			.sort('-publishedDate')
+			.populate('author categories');
+		
+		if (locals.data.category) {
+			q.where('categories').in([locals.data.category]);
+		}
+		
+		q.exec(function(err, results) {
+			locals.data.posts = results;
+			next(err);
+		});
+	});
+
+	
+
+	// Render the view
+	view.render('zig');
+	
+};

@@ -1,0 +1,104 @@
+var keystone = require('keystone');
+var Submission = keystone.list('Submission');
+
+exports = module.exports = function(req, res) {
+	
+	//post categories - or rather types. grab from the admin console.
+	var hot = '5603ccd1c76d43f64cdfb8e2';
+	var headline = '560525db32be16ec52c7fe09';
+	var top3 = '560536921f4ef90953b4a1e7';
+	var textarticle = '56054db2429768e556442ce6';
+	var featurelink = '560f549c821e1b6d2b1589a0';
+	var unlisted = '560fea99754d026b11321dc2';
+	
+	var view = new keystone.View(req, res);
+	var locals = res.locals;
+	
+	locals.headline = 'Site headline';
+
+	// Set locals
+	locals.section = 'submit';
+	locals.formData = req.body || {};
+	locals.validationErrors = {};
+	locals.enquirySubmitted = false;
+	locals.data = {post: '',
+			posts: [],
+			topics: [],
+			categories: [],
+			hot: [],
+			featurelink: []};
+	locals.data.post = {title: 'Interesting every day', content: {brief: ''}, image: {url: 'http://localhost:3000/images/logo.png'} };
+	
+	
+	// On POST requests, add the Enquiry item to the database
+	view.on('post', { action: 'submit' }, function(next) {
+		
+		keystone.list('Post').model.find()
+			.where('state','published')
+			.where('categories').nin([top3, headline, textarticle, unlisted])
+			.sort('-views').limit('5')
+			.exec(function(err, results) {
+			locals.data.hot = results; });
+		keystone.list('Post').model.find().where('categories').in([featurelink])
+			.where('state','published')
+			.sort('-views').limit('4')
+			.exec(function(err, results) {
+			locals.data.featurelink = results; 
+			});
+		keystone.list('PostTopic').model.find().exec(function(err, results) { 
+				// when topics gets too many, gonna have to limit the low importance ones & sort by date.
+				results.forEach(function (result) {
+					if (!result.icons) result.icons = 'none';
+					});
+					locals.data.topics = results; 		
+			});
+		var newSubmission = new Submission.model(),
+			updater = newSubmission.getUpdateHandler(req);
+		
+		updater.process(req.body, {
+			flashErrors: true,
+			fields: 'name, email, phone, message',
+			errorMessage: 'There was a problem submitting your enquiry:'
+		}, function(err) {
+			if (err) {
+				locals.validationErrors = err.errors;
+			} else {
+				locals.enquirySubmitted = true;
+				
+			}
+			locals.headline = 'suckmyballs';
+		
+			next(); 
+		});
+		
+	});
+
+	view.on('get', function(next) {
+		keystone.list('PostTopic').model.find().exec(function(err, results) { 
+			// when topics gets too many, gonna have to limit the low importance ones & sort by date.
+			results.forEach(function (result) {
+				if (!result.icons) result.icons = 'none';
+			});
+			locals.data.topics = results; 		
+			});
+		keystone.list('Post').model.find()
+			.where('state','published')
+			.where('categories').nin([top3, headline, textarticle, unlisted])
+			.sort('-views').limit('5')
+			.exec(function(err, results) {
+			locals.data.hot = results; });
+		keystone.list('Post').model.find().where('categories').in([headline])
+			.where('state','published')
+			.sort('-publishedDate').exec(function(err, results) {
+			locals.headline = results[0].title; });
+		keystone.list('Post').model.find().where('categories').in([featurelink])
+			.where('state','published')
+			.sort('-views').limit('4')
+			.exec(function(err, results) {
+			locals.data.featurelink = results; 
+			next(err);});
+	});
+	
+	view.render('submit');
+	
+};

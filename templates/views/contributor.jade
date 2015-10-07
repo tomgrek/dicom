@@ -1,0 +1,98 @@
+extends ../layouts/default
+
+block content
+	.container
+		div(class="col-xs-12 col-md-8 mainstories")
+			div.headline
+				p #{headline}
+			hr(style='clear:both')
+			div
+				if locals.username == 'none'
+					h1
+						| Contributor not found.
+				else if locals.username == 'many'
+					h1
+						| Our Contributors:
+					each user in users
+						h2
+							a(href="http://localhost:3000/contributor/#{user.name.full}", style="color:#777;")
+								| #{user.name.full}<img src="#{user.pic}" alt="Contributor Picture" class="contributor-picture-sm", style="margin-left:12px;"/>
+				else
+					h1
+						| #{username.full} <img src="#{pic}" alt="Contributor Picture" class="contributor-picture-lg"/>
+					p(style="color:#777;") #{email}
+					hr
+					h2
+						| Profile:
+					p!=bio
+					hr
+					h2
+						| Articles:					
+					each post in locals.data.posts
+						a(href="http://localhost:3000/a/post/#{post.slug}")
+							h3 #{post.title}
+						p(style="color:#777;") #{post._.publishedDate.format('MMMM Do, YYYY')}
+		div.col-xs-6.col-md-4.right-bar 		
+			div.mostpopular
+				h2 WHAT'S HOT
+				hr
+				each hotpost in data.hot
+					a(href="http://localhost:3000/a/post/#{hotpost.slug}")
+						div.hotlink
+							div.hotlink-img
+								if hotpost.image.url
+									img(src='#{hotpost.image.url}', width='150', height='140')
+								else
+									img(src='http://localhost:3000/images/textarticle.png', width='150', height='140')
+							div.hotlink-text
+								| #{hotpost.title} 
+								p.hotlink-views-text
+									| (#{hotpost.views} views)
+			div.topics
+				h2 TOPICS
+				hr
+				each topic in data.topics
+					if topic.importance == 'low'
+						a.topiclinkLow(href="http://localhost:3000/a/#{topic.key}")
+							| #{topic.name} 
+							each icon in topic.icons.split(',')
+								if icon != 'none'
+									<i class="mdi mdi-#{icon}"></i>
+					if topic.importance == 'medium'
+						a.topiclinkMedium(href="http://localhost:3000/a/#{topic.key}")
+							| #{topic.name} 
+							each icon in topic.icons.split(',')
+								if icon != 'none'
+									<i class="mdi mdi-#{icon}"></i>
+					if topic.importance == 'high'
+						a.topiclinkHigh(href="http://localhost:3000/a/#{topic.key}")
+							| #{topic.name} 
+							each icon in topic.icons.split(',')
+								- icon = icon.trim();
+								if icon != 'none'
+									<i class="mdi mdi-#{icon}"></i>
+			div.featuredlinks
+				h2 FEATURED LINKS
+				hr
+				each link in data.featurelink
+					- myhref = link.content.brief.substr(3,link.content.brief.length-7);
+					- myhref = myhref.replace(/\//g,'\\');
+					a(href="http://localhost:3000/redirect/#{myhref}", target="_blank")
+						div.hotlink
+							div.hotlink-img
+								img(src='#{link.image.url}', width='150', height='140')
+							div.hotlink-text
+								| #{link.title}
+						div(style="clear:both;")
+			.container(style="width:100%;"): #footer
+			
+				ul(class="footer-links", style="position: fixed; bottom: 0px; height:30px; padding-left:0px;margin-left:-100px;")
+					li
+						a(href="http://localhost:3000/a/post/about") About
+					li
+						a(href="http://localhost:3000/a/post/privacy") Privacy
+					li
+						a(href="http://localhost:3000/a/post/terms") Terms
+					li
+						a(href="http://localhost:3000/a/post/contact") Contact
+					li(style="font-size:smaller;margin-top:3px;"): | (c) 2015 Patio Media 

@@ -1,0 +1,115 @@
+extends ../layouts/default
+
+block content
+	.container
+		div(class="col-xs-12 col-md-8 mainstories")
+			div.headline
+				p #{headline}
+			each story in data.top3
+				div(class="col-xs-6 col-sm-4 top3stories")
+					a(href="http://localhost:3000/a/post/#{story.slug}")
+						div.top3stories-pic
+							img(src='#{story.image.url}', width='100%')
+						div.top3stories-headline
+							p #{story.title}
+			hr(style='clear:both')
+			each article in data.textarticles
+				div.col-xs-6.col-sm-6.textonly
+					a(href="http://localhost:3000/a/post/#{article.slug}")
+						- boab=article.content.brief.replace(/"/g, '<i class="mdi mdi-format-quote", style="font-size:xx-large;"></i>')
+						- boab = boab.replace(/<p>/g,'').replace(/<\/p>/g,'')
+						| !{boab}
+			hr(style='clear:both')
+			div
+				h1.dailyinterest DAILY INTEREST
+				.blog(id='mainsection')
+					each article in locals.data.posts.results
+						a(href='/a/post/' + article.slug, style="color:#333")
+							h2 #{article.title}
+						p.subtext #{article._.publishedDate.format('MMMM Do, YYYY')} by #{article.author.name.first} #{article.author.name.last} in
+							if article.topics && article.topics.length
+								each cat, i in article.topics
+									a(href='/a/' + cat.key, style="margin-left:7px;")= '#' + cat.name
+									| 
+						p!=article.content.brief
+						if article.content.extended
+							p.read-more: a(href='/a/post/' + article.slug) [ continue reading ]
+						hr
+				if locals.data.posts.totalPages > 1
+					div.paginator
+						ul.pagination
+							if locals.data.posts.previous
+								li: a(href='?page=' + locals.data.posts.previous): span.glyphicon.glyphicon-chevron-left
+							else
+								li.disabled: a(href='?page=' + 1): span.glyphicon.glyphicon-chevron-left
+							each p, i in locals.data.posts.pages
+								li(class=locals.data.posts.currentPage == p ? 'active' : null)
+									a(href='?page=' + (p == '...' ? (i ? locals.data.posts.totalPages : 1) : p ))= p
+							if locals.data.posts.next
+								li: a(href='?page=' + locals.data.posts.next): span.glyphicon.glyphicon-chevron-right
+							else
+								li.disabled: a(href='?page=' + locals.data.posts.totalPages): span.entypo.glyphicon.glyphicon-chevron-right
+		div.col-xs-6.col-md-4.right-bar 		
+			div.mostpopular
+				h2 WHAT'S HOT
+				hr
+				each hotpost in data.hot
+					a(href="http://localhost:3000/a/post/#{hotpost.slug}")
+						div.hotlink
+							div.hotlink-img
+								if hotpost.image.url
+									img(src='#{hotpost.image.url}', width='150', height='140')
+								else
+									img(src='http://localhost:3000/images/textarticle.png', width='150', height='140')
+							div.hotlink-text
+								| #{hotpost.title} 
+								p.hotlink-views-text
+									| (#{hotpost.views} views)
+			div.topics
+				h2 TOPICS
+				hr
+				each topic in data.topics
+					if topic.importance == 'low'
+						a.topiclinkLow(href="http://localhost:3000/a/#{topic.key}")
+							| #{topic.name} 
+							each icon in topic.icons.split(',')
+								if icon != 'none'
+									<i class="mdi mdi-#{icon}"></i>
+					if topic.importance == 'medium'
+						a.topiclinkMedium(href="http://localhost:3000/a/#{topic.key}")
+							| #{topic.name} 
+							each icon in topic.icons.split(',')
+								if icon != 'none'
+									<i class="mdi mdi-#{icon}"></i>
+					if topic.importance == 'high'
+						a.topiclinkHigh(href="http://localhost:3000/a/#{topic.key}")
+							| #{topic.name} 
+							each icon in topic.icons.split(',')
+								- icon = icon.trim();
+								if icon != 'none'
+									<i class="mdi mdi-#{icon}"></i>
+			div.featuredlinks
+				h2 FEATURED LINKS
+				hr
+				each link in data.featurelink
+					- myhref = link.content.brief.substr(3,link.content.brief.length-7);
+					- myhref = myhref.replace(/\//g,'\\');
+					a(href="http://localhost:3000/redirect/#{myhref}", target="_blank")
+						div.hotlink
+							div.hotlink-img
+								img(src='#{link.image.url}', width='150', height='140')
+							div.hotlink-text
+								| #{link.title}
+						div(style="clear:both;")
+			.container(style="width:100%;"): #footer
+			
+				ul(class="footer-links", style="position: fixed; bottom: 0px; height:30px; padding-left:0px;margin-left:-100px;")
+					li
+						a(href="http://localhost:3000/a/post/about") About
+					li
+						a(href="http://localhost:3000/a/post/privacy") Privacy
+					li
+						a(href="http://localhost:3000/a/post/terms") Terms
+					li
+						a(href="http://localhost:3000/a/post/contact") Contact
+					li(style="font-size:smaller;margin-top:3px;"): | (c) 2015 Patio Media 

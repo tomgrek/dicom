@@ -1,0 +1,164 @@
+var keystone = require('keystone');
+var async = require('async');
+
+exports = module.exports = function(req, res) {
+	
+	var view = new keystone.View(req, res);
+	var locals = res.locals;
+	
+	//post categories - or rather types. grab from the admin console.
+	var hot = '5603ccd1c76d43f64cdfb8e2';
+	var headline = '560525db32be16ec52c7fe09';
+	var top3 = '560536921f4ef90953b4a1e7';
+	var textarticle = '56054db2429768e556442ce6';
+	var featurelink = '560f549c821e1b6d2b1589a0';
+	var unlisted = '560fea99754d026b11321dc2';
+
+	// Init locals
+	locals.section = 'a';
+	locals.filters = {
+		category: req.params.category,
+		topic: req.params.topic
+	};
+	locals.data = {
+		posts: [],
+		topics: [],
+		hot: [],
+		categories: [],
+		featurelink: []
+	};
+	
+	view.on('post', function(next) {
+		keystone.list('PostTopic').model.find().exec(function(err, results) { 
+			// when topics gets too many, gonna have to limit the low importance ones & sort by date.
+			results.forEach(function (result) {
+				if (!result.icons) result.icons = 'none';
+			});
+			locals.data.topics = results; 		
+			});
+		keystone.list('Post').model.find()
+			.where('state','published')
+			.sort('-views').limit('5')
+			.exec(function(err, results) {
+			locals.data.hot = results; });
+		keystone.list('Post').model.find().where('categories').in([featurelink])
+			.where('state','published')
+			.sort('-views').limit('4')
+			.exec(function(err, results) {
+			locals.data.featurelink = results; });
+		var q = keystone.list('Post')
+			.paginate({
+				page: req.query.page || 1,
+				perPage: 10,
+				maxPages: 10
+			})
+			.find({title: new RegExp(req.body.query, 'i')},{ 'title': 1 })
+			.where('state', 'published')
+			.sort('-publishedDate')
+			.populate('author topics categories');
+		
+		if (locals.data.category) {
+			q.where('categories').in([locals.data.category]);
+		}
+		
+		q.exec(function(err, results) {
+			locals.data.posts = results;
+			next(err);
+		});
+	});
+
+	// Load all categories
+	view.on('get', function(next) {
+		
+		keystone.list('PostCategory').model.find().sort('name').exec(function(err, results) {
+			
+			if (err || !results.length) {
+				return next(err);
+			}
+			
+			locals.data.categories = results;
+			
+			// Load the counts for each category
+			async.each(locals.data.categories, function(category, next) {
+				
+				keystone.list('Post').model.count().where('categories').in([category.id]).exec(function(err, count) {
+					category.postCount = count;
+					next(err);
+				});
+				
+			}, function(err) {
+				next(err);
+			});
+			
+		});
+		
+	});
+	
+	// Load the current category filter
+	view.on('get', function(next) {
+		if (req.params.category) {
+			keystone.list('PostTopic').model.findOne({ key: locals.filters.category }).exec(function(err, result) {
+				locals.filters.topic = result;
+				next(err);
+			});
+		} else {
+			next();
+		}
+		
+	});
+	
+
+	// Load the posts
+	view.on('get', function(next) {
+
+		keystone.list('PostTopic').model.find().exec(function(err, results) { 
+			// when topics gets too many, gonna have to limit the low importance ones & sort by date.
+			results.forEach(function (result) {
+				console.log(result);
+				if (!result.icons || result.icons=='undefined') result.icons = 'none';
+			});
+			locals.data.topics = results; 		
+			});
+		keystone.list('Post').model.find()
+			.where('state','published')
+			.sort('-views').limit('5')
+			.exec(function(err, results) {
+			locals.data.hot = results; });
+		var q = keystone.list('Post').paginate({
+				page: req.query.page || 1,
+				perPage: 10,
+				maxPages: 10
+			})
+			.where('state', 'published')
+			.sort('-publishedDate')
+			.populate('author topics categories');
+		
+		if (req.params.category) {	
+			keystone.list('PostTopic').model.find().where('key').in([req.params.category]).exec(function(err, results) { 
+				locals.filters.topic = results;
+				if (results.length > 0) {
+					locals.data.topic = results[0];
+					q.where('topics').in([locals.filters.topic[0].id]);
+					q.exec(function(err, results) {
+						if (results) locals.data.posts = results;
+						next(err);
+					});
+				}
+				else { next(err); } //no results - invalid topic (category)
+				
+			});
+		}
+		else {
+			q.exec(function(err, results) {
+				locals.data.posts = results;
+				next(err);
+			});
+		}
+		
+		
+	});
+	
+	// Render the view
+	view.render('a');
+	
+};

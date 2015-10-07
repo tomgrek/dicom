@@ -1,0 +1,9 @@
+// Override Bootstrap variables in this file, e.g.
+
+@font-size-base: 14px;
+
+@yellow: #fdf200;
+@lightgreen: #C6D5CD;
+@mauve:
+@grey: #5a6a62;
+@pink: #e94c6f;

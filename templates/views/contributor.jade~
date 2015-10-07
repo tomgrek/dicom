@@ -1,0 +1,54 @@
+extends ../layouts/default
+
+block content
+	.container
+		div(class="col-xs-12 col-md-8 mainstories")
+			div.headline
+				p #{headline}
+			hr(style='clear:both')
+			div
+				if locals.username == 'none'
+					h1
+						| Contributor not found.
+				else if locals.username == 'many'
+					h1
+						| Our Contributors:
+					each user in users
+						h2
+							a(href="http://localhost:3000/contributor/#{user.name.full}", style="color:#777;")
+								| #{user.name.full}<img src="#{user.pic}" alt="Contributor Picture" class="contributor-picture-sm", style="margin-left:12px;"/>
+				else
+					h1
+						| #{username.full} <img src="#{pic}" alt="Contributor Picture" class="contributor-picture-lg"/>
+					p(style="color:#777;") #{email}
+					hr
+					h2
+						| Profile:
+					p!=bio
+					hr
+					h2
+						| Articles:					
+					each post in locals.data.posts
+						a(href="http://localhost:3000/a/post/#{post.slug}")
+							h3 #{post.title}
+						p(style="color:#777;") #{post._.publishedDate.format('MMMM Do, YYYY')}
+		div.col-xs-6.col-md-4.right-bar 		
+			div.mostpopular
+				h2 WHAT'S HOT
+				hr
+				each hotpost in data.hot
+					div.hotlink
+						div.hotlink-img
+							img(src='#{hotpost.image.url}', width='150', height='140')
+						div.hotlink-text
+							| #{hotpost.title} (#{hotpost.views} views)
+			div.topics
+				h2 TOPICS
+				hr
+				each topic in data.topics
+					p #{topic.name}
+			div.featuredlinks
+				h2 FEATURED LINKS
+				hr
+				each topic in data.topics
+					p #{topic.name}
